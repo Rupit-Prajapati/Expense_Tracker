@@ -76,6 +76,11 @@ const Home = () => {
             <Button leftIcon={<TiCancel />} flexGrow={1} onClick={cancel} colorScheme='blue' variant='outline' isDisabled={id || productName ? false : true}>Cancel</Button>
           </Flex>
         </Flex>
+        <Flex>
+          <Box>
+            <Text>run</Text>
+          </Box>
+        </Flex>
         <TableContainer>
           <Table variant='striped' colorScheme='teal'>
             <Thead>
