@@ -1,5 +1,5 @@
 'use client'
-import { Container, Flex, Input, Button, Text, cookieStorageManager, StepDescription } from '@chakra-ui/react';
+import { Box, Container, Flex, Input, Button, Text, cookieStorageManager, StepDescription, NumberInput, NumberInputField, FormLabel, FormHelperText, FormErrorMessage, FormControl } from '@chakra-ui/react';
 import { useMyContext } from './context/context';
 import { Heading } from '@chakra-ui/react';
 import { Table, TableCaption, TableContainer, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react';
@@ -55,20 +55,26 @@ const Home = () => {
       <Container maxW={['95%', '540px', '720px', '950px', '1200px', '1200px',]} margin={'0px auto'} px={'5px'}>
         <Flex flexDirection={'column'} gap={'15px'} pb={'50px'}>
           <Heading as='h6'>{user ? user.displayName : 'Guest'}'s expense tracker</Heading>
-          <Text>Note: Not selecting the date and time will select the current date and time</Text>
-          <Input value={date} onChange={(e) => setDate(e.target.value)} placeholder="Select Date and Time" type="datetime-local" variant='filled' required />
-          <Input value={description} onChange={(e) => setDescription(e.target.value)} variant='filled' placeholder='Enter Product Name' />
-          <Input value={price} onChange={(e) => setPrice(e.target.value)} variant='filled' placeholder='Enter Your Product Price' />
+          <Box>
+            <FormLabel htmlFor='date'>Select Date</FormLabel>
+            <Input id='date' value={date} onChange={(e) => setDate(e.target.value)} placeholder="Select Date and Time" type="datetime-local" variant='filled' required />
+            <Text> <Text as={'span'} color={'red'}>Note: </Text> Not selecting the date and time will select the current date and time</Text>
+          </Box>
+          <Box>
+            <FormLabel htmlFor='product'>Enter Product Name</FormLabel>
+            <Input id='product' value={description} onChange={(e) => setDescription(e.target.value)} variant='filled' />
+          </Box>
+          <Box>
+            <FormLabel htmlFor='price'>Enter Price</FormLabel>
+            <NumberInput id='price' min={0} max={10000} clampValueOnBlur={false} value={price} onChange={(valueString) => setPrice(valueString)} variant='filled' >
+              <NumberInputField />
+            </NumberInput>
+          </Box>
           <Flex gap={'10px'}>
             <Button leftIcon={<MdAdd />} isLoading={isLoading} loadingText={id ? 'Updating' : 'Adding'} flexGrow={1} onClick={id ? dataUpdate : addData} colorScheme='blue' isDisabled={description && price ? false : true}>{id ? 'Update' : 'Add'}</Button>
             <Button leftIcon={<TiCancel />} flexGrow={1} onClick={cancel} colorScheme='blue' variant='outline' isDisabled={id || description ? false : true}>Cancel</Button>
           </Flex>
         </Flex>
-        {/* <Flex justifyContent={'space-between'} >
-          <Text padding={'5px'} flexGrow={'1'} border={'1px solid red'} >Name</Text>
-          <Text padding={'5px'} flexGrow={'1'} border={'1px solid red'} >Surname</Text>
-          <Text padding={'5px'} flexGrow={'1'} border={'1px solid red'} >Actions</Text>
-        </Flex> */}
         <TableContainer>
           <Table variant='striped' colorScheme='teal'>
             <Thead>

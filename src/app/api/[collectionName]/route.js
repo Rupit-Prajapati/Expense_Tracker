@@ -6,7 +6,6 @@ import { useCollectionData } from 'react-firebase-hooks/firestore';
 export async function GET(req, res) {
   let collectionName = res.params.collectionName
   let data;
-  console.log(collectionName)
   try {
     const collectionRef = collection(firestore, collectionName);
     const snapshot = await getDocs(collectionRef);

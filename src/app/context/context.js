@@ -10,7 +10,7 @@ export const Context = ({ children }) => {
   const [collectionName, setCollectionName] = useState(null)
   const [id, setId] = useState()
   const [description, setDescription] = useState('')
-  const [price, setPrice] = useState('')
+  const [price, setPrice] = useState('0')
   const [date, setDate] = useState(fullDateTime)
   const [data, setData] = useState(null);
   const [user, setUser] = useState(null);
