@@ -8,7 +8,6 @@ export async function DELETE(req, res) {
   try {
     const documentRef = doc(firestore, collectionName, documentId);
     await deleteDoc(documentRef);
-    console.log(`Document with ID ${documentId} deleted successfully.`);
   } catch (error) {
     console.error('Error deleting document: ', error);
     throw error;

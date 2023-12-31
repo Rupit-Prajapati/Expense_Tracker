@@ -7,10 +7,23 @@ const provider = new GoogleAuthProvider();
 const MyContext = createContext();
 
 export const Context = ({ children }) => {
+  var currentDate = new Date();
+  const yesterday = new Date(currentDate);
+  var currentyear = currentDate.getFullYear();
+  var currentmonth = currentDate.getMonth() + 1;
+  var currentdate = currentDate.getDate();
+  var twoDigitHour = currentDate.getHours();
+  var twoDigitMinute = currentDate.getMinutes();
+  var currenthour = currentDate.getHours();
+  var currenthour = twoDigitHour < 10 ? `0${twoDigitHour}` : twoDigitHour;
+  var currentminute = twoDigitMinute < 10 ? `0${twoDigitMinute}` : twoDigitMinute;
+  var fullDateTime = `${currentyear}-${currentmonth}-${currentdate}T${currenthour}:${currentminute}`
+
   const [collectionName, setCollectionName] = useState(null)
   const [id, setId] = useState()
-  const [description, setDescription] = useState('')
-  const [price, setPrice] = useState('0')
+  const [productName, setProductName] = useState('')
+  const [price, setPrice] = useState(0)
+  const [error, setError] = useState('')
   const [date, setDate] = useState(fullDateTime)
   const [data, setData] = useState(null);
   const [user, setUser] = useState(null);
@@ -34,17 +47,6 @@ export const Context = ({ children }) => {
     }
   }, [collectionName]);
 
-  var currentDate = new Date();
-  const yesterday = new Date(currentDate);
-  var currentyear = currentDate.getFullYear();
-  var currentmonth = currentDate.getMonth() + 1;
-  var currentdate = currentDate.getDate();
-  var twoDigitHour = currentDate.getHours();
-  var twoDigitMinute = currentDate.getMinutes();
-  var currenthour = currentDate.getHours();
-  var currenthour = twoDigitHour < 10 ? `0${twoDigitHour}` : twoDigitHour;
-  var currentminute = twoDigitMinute < 10 ? `0${twoDigitMinute}` : twoDigitMinute;
-  var fullDateTime = `${currentyear}-${currentmonth}-${currentdate}T${currenthour}:${currentminute}`
   yesterday.setDate(currentDate.getDate() - 1);
   const signIn = () => {
     signInWithPopup(auth, provider)
@@ -89,27 +91,57 @@ export const Context = ({ children }) => {
     getData();
   }
   const addData = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     const data = {
-      description, price, date
+      productName,
+      price: parseFloat(price),
+      date,
+    };
+
+    if (!date && !productName && !price) {
+      setError('Please enter Date, Product Name, and Product Price');
+      setIsLoading(false);
+    } else if (!date && !productName) {
+      setError('Please enter Date and Product Name');
+      setIsLoading(false);
+    } else if (!date && !price) {
+      setError('Please enter Date and Product Price');
+      setIsLoading(false);
+    } else if (!productName && !price) {
+      setError('Please enter Product Name and Product Price');
+      setIsLoading(false);
+    } else if (!date) {
+      setError('Please select a date');
+      setIsLoading(false);
+    } else if (!productName) {
+      setError('Please enter a Product Name');
+      setIsLoading(false);
+    } else if (!price) {
+      setError('Please enter a Product Price');
+      setIsLoading(false);
+    } else {
+      setError(false);
+      let response = await fetch(`api/${collectionName}`, {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      setProductName('');
+      setPrice(0);
+      setDate(fullDateTime);
+
+      response = await response.json();
+      await getData();
     }
-    let response = await fetch(`api/${collectionName}`, {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
-    setDescription('')
-    setPrice('')
-    setDate(fullDateTime)
-    response = await response.json();
-    await getData();
-  }
+  };
+
   const dataUpdate = async () => {
     setIsLoading(true)
     const newData = {
-      description, price, date
+      productName, price, date
     };
 
     try {
@@ -124,7 +156,7 @@ export const Context = ({ children }) => {
       console.log(response)
       await getData();
       setId('')
-      setDescription('')
+      setProductName('')
       setPrice('')
       setDate(fullDateTime)
     } catch (error) {
@@ -140,18 +172,18 @@ export const Context = ({ children }) => {
     })
     response = await response.json();
     setId(response.id);
-    setDescription(response.description);
+    setProductName(response.productName);
     setPrice(response.price);
     setDate(response.date)
   }
   const cancel = () => {
     setId('')
-    setDescription('')
+    setProductName('')
     setPrice('')
     setDate(fullDateTime)
   }
   const contextValue = {
-    currentDate, yesterday, data, date, isLoading, cancel, setDate, deleteData, addData, dataUpdate, dataById, setDescription, setPrice, id, description, price, data, signIn, signOut, user
+    currentDate, yesterday, error, data, date, isLoading, cancel, setDate, deleteData, addData, dataUpdate, dataById, setProductName, setPrice, id, productName, price, data, signIn, signOut, user
   }
   return (
     <MyContext.Provider value={contextValue}>{children}</MyContext.Provider>

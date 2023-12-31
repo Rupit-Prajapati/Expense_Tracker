@@ -23,7 +23,6 @@ export async function POST(req, res) {
   try {
     const collectionRef = collection(firestore, collectionName);
     const docRef = await addDoc(collectionRef, { ...data });
-    console.log(`Document written with ID from route: ${docRef.id}`);
   } catch (error) {
     console.error('Error adding document: ', error);
   }

@@ -1,5 +1,5 @@
 'use client'
-import { Box, Container, Flex, Input, Button, Text, cookieStorageManager, StepDescription, NumberInput, NumberInputField, FormLabel, FormHelperText, FormErrorMessage, FormControl } from '@chakra-ui/react';
+import { Box, Container, Flex, Input, Button, Text, cookieStorageManager, StepDescription, NumberInput, NumberInputField, FormLabel, FormHelperText, FormErrorMessage, FormControl, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from '@chakra-ui/react';
 import { useMyContext } from './context/context';
 import { Heading } from '@chakra-ui/react';
 import { Table, TableCaption, TableContainer, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react';
@@ -8,7 +8,7 @@ import { MdAdd, MdDelete, MdEdit } from "react-icons/md"
 import { TiCancel } from "react-icons/ti";
 
 const Home = () => {
-  const { user, data, currentDate, yesterday, isLoading, deleteData, date, setDate, cancel, addData, dataUpdate, dataById, setDescription, setPrice, description, price, id } = useMyContext()
+  const { user, data, error, currentDate, yesterday, isLoading, deleteData, date, setDate, cancel, addData, dataUpdate, dataById, setProductName, setPrice, productName, price, id } = useMyContext()
 
   const expData = data && data.sort((a, b) => {
     const dateA = new Date(a.date);
@@ -49,7 +49,6 @@ const Home = () => {
       return `${hour}:${minute} AM`
     }
   }
-
   return (
     <>
       <Container maxW={['95%', '540px', '720px', '950px', '1200px', '1200px',]} margin={'0px auto'} px={'5px'}>
@@ -62,7 +61,7 @@ const Home = () => {
           </Box>
           <Box>
             <FormLabel htmlFor='product'>Enter Product Name</FormLabel>
-            <Input id='product' value={description} onChange={(e) => setDescription(e.target.value)} variant='filled' />
+            <Input id='product' value={productName} onChange={(e) => setProductName(e.target.value)} variant='filled' />
           </Box>
           <Box>
             <FormLabel htmlFor='price'>Enter Price</FormLabel>
@@ -70,9 +69,11 @@ const Home = () => {
               <NumberInputField />
             </NumberInput>
           </Box>
+          <Text color={'red'}>{error}</Text>
+
           <Flex gap={'10px'}>
-            <Button leftIcon={<MdAdd />} isLoading={isLoading} loadingText={id ? 'Updating' : 'Adding'} flexGrow={1} onClick={id ? dataUpdate : addData} colorScheme='blue' isDisabled={description && price ? false : true}>{id ? 'Update' : 'Add'}</Button>
-            <Button leftIcon={<TiCancel />} flexGrow={1} onClick={cancel} colorScheme='blue' variant='outline' isDisabled={id || description ? false : true}>Cancel</Button>
+            <Button leftIcon={<MdAdd />} isLoading={isLoading} loadingText={id ? 'Updating' : 'Adding'} flexGrow={1} onClick={id ? dataUpdate : addData} colorScheme='blue' >{id ? 'Update' : 'Add'}</Button>
+            <Button leftIcon={<TiCancel />} flexGrow={1} onClick={cancel} colorScheme='blue' variant='outline' isDisabled={id || productName ? false : true}>Cancel</Button>
           </Flex>
         </Flex>
         <TableContainer>
@@ -89,18 +90,16 @@ const Home = () => {
             <Tbody>
               {expData && expData.map((data, index) => {
                 return (
-                  <>
-                    <Tr key={data.id}>
-                      <Td>{getUniqueDate(data.date)}</Td>
-                      <Td>{time(data.date)}</Td>
-                      <Td>{data.description}</Td>
-                      <Td>{data.price}</Td>
-                      <Td >
-                        <Button leftIcon={<MdDelete />} onClick={() => deleteData(data.id)} colorScheme='red' >Delete</Button>
-                        <Button leftIcon={<MdEdit />} ml={'10px'} onClick={() => dataById(data.id)} colorScheme='blue'>Edit</Button>
-                      </Td>
-                    </Tr>
-                  </>
+                  <Tr key={data.id}>
+                    <Td>{getUniqueDate(data.date)}</Td>
+                    <Td>{time(data.date)}</Td>
+                    <Td>{data.productName}</Td>
+                    <Td>{data.price}</Td>
+                    <Td >
+                      <Button leftIcon={<MdDelete />} onClick={() => deleteData(data.id)} colorScheme='red' >Delete</Button>
+                      <Button leftIcon={<MdEdit />} ml={'10px'} onClick={() => dataById(data.id)} colorScheme='blue'>Edit</Button>
+                    </Td>
+                  </Tr>
                 )
               })}
             </Tbody>
