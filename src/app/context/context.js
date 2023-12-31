@@ -71,7 +71,7 @@ export const Context = ({ children }) => {
     setUser(null);
   };
   const getData = async () => {
-    let response = await fetch(`http://localhost:3000/api/${collectionName}`);
+    let response = await fetch(`api/${collectionName}`);
     response = await response.json();
     console.log(response.date)
     setData(response.data)
