@@ -59,7 +59,7 @@ const Home = () => {
     <>
       <Container maxW={['95%', '540px', '650px', '650px', '650px', '650px',]} margin={'0px auto'} px={'5px'}>
         <Flex flexDirection={'column'} gap={'15px'} pb={'50px'}>
-          <Heading as='h6'>{user ? user.displayName : 'Guest'}'s expense tracker</Heading>
+          <Heading as='h6'>{user ? user.displayName.split(" ")[0] : 'Guest'}'s expenses</Heading>
           <Box>
             <FormLabel htmlFor='date'>Select Date</FormLabel>
             <Input id='date' value={date} onChange={(e) => setDate(e.target.value)} placeholder="Select Date and Time" type="datetime-local" variant='filled' required />
