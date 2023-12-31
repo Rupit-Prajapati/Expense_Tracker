@@ -39,8 +39,10 @@ export const Context = ({ children }) => {
   var currentyear = currentDate.getFullYear();
   var currentmonth = currentDate.getMonth() + 1;
   var currentdate = currentDate.getDate();
-  var currenthour = currentDate.getHours();
+  var twoDigitHour = currentDate.getHours();
   var twoDigitMinute = currentDate.getMinutes();
+  var currenthour = currentDate.getHours();
+  var currenthour = twoDigitHour < 10 ? `0${twoDigitHour}` : twoDigitHour;
   var currentminute = twoDigitMinute < 10 ? `0${twoDigitMinute}` : twoDigitMinute;
   var fullDateTime = `${currentyear}-${currentmonth}-${currentdate}T${currenthour}:${currentminute}`
   yesterday.setDate(currentDate.getDate() - 1);
