@@ -64,11 +64,11 @@ const Home = () => {
             <Button leftIcon={<TiCancel />} flexGrow={1} onClick={cancel} colorScheme='blue' variant='outline' isDisabled={id || description ? false : true}>Cancel</Button>
           </Flex>
         </Flex>
-        <Flex justifyContent={'space-between'} >
+        {/* <Flex justifyContent={'space-between'} >
           <Text padding={'5px'} flexGrow={'1'} border={'1px solid red'} >Name</Text>
           <Text padding={'5px'} flexGrow={'1'} border={'1px solid red'} >Surname</Text>
           <Text padding={'5px'} flexGrow={'1'} border={'1px solid red'} >Actions</Text>
-        </Flex>
+        </Flex> */}
         <TableContainer>
           <Table variant='striped' colorScheme='teal'>
             <Thead>
