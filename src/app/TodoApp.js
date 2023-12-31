@@ -79,6 +79,7 @@ const Home = () => {
         <Flex>
           <Box>
             <Text>run</Text>
+            <Text>running</Text>
           </Box>
         </Flex>
         <TableContainer>
