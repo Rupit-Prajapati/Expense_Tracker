@@ -78,7 +78,7 @@ export const Context = ({ children }) => {
     setIsLoading(false)
   }
   const deleteData = async (id) => {
-    let response = await fetch(`http://localhost:3000/api/${collectionName}/${id}`, {
+    let response = await fetch(`api/${collectionName}/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ export const Context = ({ children }) => {
     const data = {
       description, price, date
     }
-    let response = await fetch(`http://localhost:3000/api/${collectionName}`, {
+    let response = await fetch(`api/${collectionName}`, {
       method: 'post',
       headers: {
         'Content-Type': 'application/json',
@@ -113,7 +113,7 @@ export const Context = ({ children }) => {
     };
 
     try {
-      let response = await fetch(`http://localhost:3000/api/${collectionName}/${id}`, {
+      let response = await fetch(`api/${collectionName}/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -132,7 +132,7 @@ export const Context = ({ children }) => {
     }
   };
   const dataById = async (id) => {
-    let response = await fetch(`http://localhost:3000/api/${collectionName}/${id}`, {
+    let response = await fetch(`api/${collectionName}/${id}`, {
       method: 'get',
       headers: {
         'Content-Type': 'application/json',
