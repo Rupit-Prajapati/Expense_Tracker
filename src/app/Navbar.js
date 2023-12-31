@@ -7,7 +7,7 @@ const Navbar = () => {
   const { user, signIn, signOut } = useMyContext();
   return (
     <Flex padding={'10px 0px'}>
-      <Container maxW={['95%', '540px', '720px', '950px', '1200px', '1200px',]} margin={'0px auto'} px={'5px'}>
+      <Container maxW={['95%', '540px', '650px', '650px', '650px', '650px',]} margin={'0px auto'} px={'5px'}>
         {user ? (
           <>
             <Flex justifyContent={'space-between'}>

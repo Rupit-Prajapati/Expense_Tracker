@@ -24,12 +24,18 @@ const Home = () => {
     if (uniqueDate !== expFullDate) {
       uniqueDate = expFullDate
       if (currentDate.toDateString() === expDate.toDateString()) {
-        return 'Today'
+        return <Flex> <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
+          <Text as={'h6'} fontWeight={'600'}>Today</Text>
+        </Box> </Flex>
       }
       if (yesterday.toDateString() === expDate.toDateString()) {
-        return 'Yesterday'
+        return <Flex> <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
+          <Text as={'h6'} fontWeight={'600'}>Yesterday</Text>
+        </Box> </Flex>
       }
-      return uniqueDate;
+      return <Flex> <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
+        <Text as={'h6'} fontWeight={'600'}>{uniqueDate}</Text>
+      </Box> </Flex>
     }
   }
   const time = (date) => {
@@ -51,7 +57,7 @@ const Home = () => {
   }
   return (
     <>
-      <Container maxW={['95%', '540px', '720px', '950px', '1200px', '1200px',]} margin={'0px auto'} px={'5px'}>
+      <Container maxW={['95%', '540px', '650px', '650px', '650px', '650px',]} margin={'0px auto'} px={'5px'}>
         <Flex flexDirection={'column'} gap={'15px'} pb={'50px'}>
           <Heading as='h6'>{user ? user.displayName : 'Guest'}'s expense tracker</Heading>
           <Box>
@@ -76,41 +82,31 @@ const Home = () => {
             <Button leftIcon={<TiCancel />} flexGrow={1} onClick={cancel} colorScheme='blue' variant='outline' isDisabled={id || productName ? false : true}>Cancel</Button>
           </Flex>
         </Flex>
-        <Flex>
-          <Box>
-            <Text>run</Text>
-            <Text>running</Text>
-          </Box>
+        <Flex flexDirection={'column'} overflowX={'scroll'}>
+          {expData && expData.map((data, index) => {
+            return (
+              <Flex flexWrap={'wrap'} flexDirection={'column'} key={data.id} overflowX={'scroll'} width={'650px'}
+                backgroundColor={index % 2 == 1 ? 'white' : '#B2F5EA'}>
+                {getUniqueDate(data.date)}
+                <Flex gap={'0px'} justifyContent={'space-between'} alignItems={'center'} p={'10px'}>
+                  <Box w={'120px'} >
+                    <Text as={'h6'} fontWeight={'500'}>{time(data.date)}</Text>
+                  </Box>
+                  <Box w={'200px'} >
+                    <Text as={'h6'} fontWeight={'500'}>{data.productName}</Text>
+                  </Box>
+                  <Box w={'80px'} >
+                    <Text as={'h6'} fontWeight={'500'}>{data.price}</Text>
+                  </Box>
+                  <Flex flexWrap={'wrap'} gap={'10px'} w={'auto'} >
+                    <Button p={'10px'} leftIcon={<MdDelete />} onClick={() => deleteData(data.id)} colorScheme='red' >Delete</Button>
+                    <Button p={'10px'} leftIcon={<MdEdit />} onClick={() => dataById(data.id)} colorScheme='blue'>Edit</Button>
+                  </Flex>
+                </Flex>
+              </Flex>
+            )
+          })}
         </Flex>
-        <TableContainer>
-          <Table variant='striped' colorScheme='teal'>
-            <Thead>
-              <Tr>
-                <Th>Date</Th>
-                <Th>Time</Th>
-                <Th>Description</Th>
-                <Th>Amount</Th>
-                <Th>Action</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {expData && expData.map((data, index) => {
-                return (
-                  <Tr key={data.id}>
-                    <Td>{getUniqueDate(data.date)}</Td>
-                    <Td>{time(data.date)}</Td>
-                    <Td>{data.productName}</Td>
-                    <Td>{data.price}</Td>
-                    <Td >
-                      <Button leftIcon={<MdDelete />} onClick={() => deleteData(data.id)} colorScheme='red' >Delete</Button>
-                      <Button leftIcon={<MdEdit />} ml={'10px'} onClick={() => dataById(data.id)} colorScheme='blue'>Edit</Button>
-                    </Td>
-                  </Tr>
-                )
-              })}
-            </Tbody>
-          </Table>
-        </TableContainer>
       </Container>
     </>
   );
