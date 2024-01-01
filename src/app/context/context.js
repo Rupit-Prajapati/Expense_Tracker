@@ -10,8 +10,10 @@ export const Context = ({ children }) => {
   var currentDate = new Date();
   const yesterday = new Date(currentDate);
   var currentyear = currentDate.getFullYear();
-  var currentmonth = currentDate.getMonth() + 1;
-  var currentdate = currentDate.getDate();
+  var twoDigitMonth = currentDate.getMonth() + 1;
+  var currentmonth = twoDigitMonth < 10 ? `0${twoDigitMonth}` : twoDigitMonth;
+  var twoDigitDate = currentDate.getDate();
+  var currentdate = twoDigitDate < 10 ? `0${twoDigitDate}` : twoDigitDate;
   var twoDigitHour = currentDate.getHours();
   var twoDigitMinute = currentDate.getMinutes();
   var currenthour = currentDate.getHours();
@@ -19,7 +21,7 @@ export const Context = ({ children }) => {
   var currentminute = twoDigitMinute < 10 ? `0${twoDigitMinute}` : twoDigitMinute;
   var fullDateTime = `${currentyear}-${currentmonth}-${currentdate}T${currenthour}:${currentminute}`
 
-  const [collectionName, setCollectionName] = useState(null)
+  const [collectionName, setCollectionName] = useState('roshni\'s Expenses')
   const [id, setId] = useState()
   const [productName, setProductName] = useState('')
   const [price, setPrice] = useState(0)
@@ -31,21 +33,19 @@ export const Context = ({ children }) => {
 
   useEffect(() => {
     setDate(fullDateTime)
-    if (user) {
-      var fullName = user.displayName;
-      fullName = fullName.split(" ")[0] + "'s Expenses ";
-      console.log(fullName)
-      setCollectionName(fullName);
-    }
-  }, [user]);
+    // if (user) {
+    //   var fullName = user.displayName;
+    //   fullName = fullName.split(" ")[0] + "'s Expenses ";
+    //   setCollectionName(fullName);
+    // }
+    getData();
+  }, []);
 
-  useEffect(() => {
-    if (collectionName) {
-      getData();
-      console.log(true);
-      console.log(collectionName);
-    }
-  }, [collectionName]);
+  // useEffect(() => {
+  //   if (collectionName) {
+  //     console.log(true);
+  //   }
+  // }, [collectionName]);
 
   yesterday.setDate(currentDate.getDate() - 1);
   const signIn = () => {
@@ -75,7 +75,6 @@ export const Context = ({ children }) => {
   const getData = async () => {
     let response = await fetch(`api/${collectionName}`);
     response = await response.json();
-    console.log(response.date)
     setData(response.data)
     setIsLoading(false)
   }

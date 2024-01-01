@@ -17,7 +17,6 @@ export async function GET(req, res) {
 }
 
 export async function POST(req, res) {
-
   let collectionName = res.params.collectionName;
   let data = await req.json();
   try {
