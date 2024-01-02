@@ -21,7 +21,7 @@ export const Context = ({ children }) => {
   var currentminute = twoDigitMinute < 10 ? `0${twoDigitMinute}` : twoDigitMinute;
   var fullDateTime = `${currentyear}-${currentmonth}-${currentdate}T${currenthour}:${currentminute}`
 
-  const [collectionName, setCollectionName] = useState('roshni\'s Expenses')
+  const [collectionName, setCollectionName] = useState(null)
   const [id, setId] = useState()
   const [productName, setProductName] = useState('')
   const [price, setPrice] = useState(0)
@@ -33,20 +33,20 @@ export const Context = ({ children }) => {
 
   useEffect(() => {
     setDate(fullDateTime)
-    // if (user) {
-    //   var fullName = user.displayName;
-    //   fullName = fullName.split(" ")[0] + "'s Expenses ";
-    //   setCollectionName(fullName);
-    // }
-    getData();
-  }, []);
+    if (user) {
+      var fullName = user.displayName;
+      fullName = fullName.split(" ")[0];
+      fullName = `${fullName}'s Expenses`;
+      setCollectionName(fullName);
+    }
+  }, [user]);
 
-  // useEffect(() => {
-  //   if (collectionName) {
-  //     console.log(true);
-  //   }
-  // }, [collectionName]);
-
+  useEffect(() => {
+    if (collectionName) {
+      console.log(true);
+      getData();
+    }
+  }, [collectionName]);
   yesterday.setDate(currentDate.getDate() - 1);
   const signIn = () => {
     signInWithPopup(auth, provider)
@@ -170,6 +170,7 @@ export const Context = ({ children }) => {
       }
     })
     response = await response.json();
+    console.log(response)
     setId(response.id);
     setProductName(response.productName);
     setPrice(response.price);
