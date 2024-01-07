@@ -7,19 +7,37 @@ const provider = new GoogleAuthProvider();
 const MyContext = createContext();
 
 export const Context = ({ children }) => {
+
+  const convertDate = (converibleDate, reversedDate, time) => {
+    var date = new Date(converibleDate);
+    var year = date.getFullYear();
+    var twoDigitMonth = date.getMonth() + 1;
+    var month = twoDigitMonth < 10 ? `0${twoDigitMonth}` : twoDigitMonth;
+    var twoDigitDate = date.getDate();
+    var date = twoDigitDate < 10 ? `0${twoDigitDate}` : twoDigitDate;
+    var twoDigitHour = currentDate.getHours();
+    var twoDigitMinute = currentDate.getMinutes();
+    var hour = twoDigitHour < 10 ? `0${twoDigitHour}` : twoDigitHour;
+    var minute = twoDigitMinute < 10 ? `0${twoDigitMinute}` : twoDigitMinute;
+
+    const ddmmyyyy = `${date}-${month}-${year}`
+    const dateComponents = ddmmyyyy.split('-');
+    const reversedDateString = `${dateComponents[2]}-${dateComponents[1]}-${dateComponents[0]}`;
+    if (reversedDate && time) {
+      return `${reversedDateString}T${hour}:${minute}`
+    }
+    else if (reversedDate) {
+      return reversedDateString
+    }
+    else {
+      return ddmmyyyy;
+    }
+  }
+
   var currentDate = new Date();
   const yesterday = new Date(currentDate);
-  var currentyear = currentDate.getFullYear();
-  var twoDigitMonth = currentDate.getMonth() + 1;
-  var currentmonth = twoDigitMonth < 10 ? `0${twoDigitMonth}` : twoDigitMonth;
-  var twoDigitDate = currentDate.getDate();
-  var currentdate = twoDigitDate < 10 ? `0${twoDigitDate}` : twoDigitDate;
-  var twoDigitHour = currentDate.getHours();
-  var twoDigitMinute = currentDate.getMinutes();
-  var currenthour = currentDate.getHours();
-  var currenthour = twoDigitHour < 10 ? `0${twoDigitHour}` : twoDigitHour;
-  var currentminute = twoDigitMinute < 10 ? `0${twoDigitMinute}` : twoDigitMinute;
-  var fullDateTime = `${currentyear}-${currentmonth}-${currentdate}T${currenthour}:${currentminute}`
+  var reversedDate = convertDate(currentDate, 'reversedDate', 'time')
+  var fullDateTime = reversedDate
 
   const [collectionName, setCollectionName] = useState(null)
   const [id, setId] = useState()
@@ -43,7 +61,6 @@ export const Context = ({ children }) => {
 
   useEffect(() => {
     if (collectionName) {
-      console.log(true);
       getData();
     }
   }, [collectionName]);
@@ -61,6 +78,7 @@ export const Context = ({ children }) => {
         const credential = GoogleAuthProvider.credentialFromError(error);
       });
   }
+
   const createCollection = () => {
     if (user) {
       console.log(user.displayName)
@@ -96,8 +114,10 @@ export const Context = ({ children }) => {
       price: parseFloat(price),
       date,
     };
-
-    if (!date && !productName && !price) {
+    if (!collectionName) {
+      setError('Log in to start storing your expenses');
+      setIsLoading(false);
+    } else if (!date && !productName && !price) {
       setError('Please enter Date, Product Name, and Product Price');
       setIsLoading(false);
     } else if (!date && !productName) {
@@ -183,7 +203,7 @@ export const Context = ({ children }) => {
     setDate(fullDateTime)
   }
   const contextValue = {
-    currentDate, yesterday, error, data, date, isLoading, cancel, setDate, deleteData, addData, dataUpdate, dataById, setProductName, setPrice, id, productName, price, data, signIn, signOut, user
+    currentDate, yesterday, error, data, date, isLoading, cancel, setDate, deleteData, addData, dataUpdate, dataById, setProductName, setPrice, id, productName, price, data, convertDate, signIn, signOut, user
   }
   return (
     <MyContext.Provider value={contextValue}>{children}</MyContext.Provider>

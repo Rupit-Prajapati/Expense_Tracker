@@ -18,11 +18,9 @@ export async function DELETE(req, res) {
 export async function GET(req, res) {
   let documentId = res.params.id
   let collectionName = res.params.collectionName
-  console.log(collectionName, documentId)
   const documentRef = doc(firestore, collectionName, documentId,)
   const getdocument = await getDoc(documentRef)
   let data = { id: getdocument.id, ...getdocument.data() }
-  console.log(data)
   return NextResponse.json(data)
 }
 export async function PUT(req, res) {

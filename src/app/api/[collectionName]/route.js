@@ -10,6 +10,7 @@ export async function GET(req, res) {
     const collectionRef = collection(firestore, collectionName);
     const snapshot = await getDocs(collectionRef);
     data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
   } catch (error) {
     console.error('Error fetching documents: ', error);
   }
@@ -20,8 +21,10 @@ export async function POST(req, res) {
   let collectionName = res.params.collectionName;
   let data = await req.json();
   try {
-    const collectionRef = collection(firestore, collectionName);
-    const docRef = await addDoc(collectionRef, { ...data });
+    if (!(collectionName == 'null')) {
+      const collectionRef = collection(firestore, collectionName);
+      const docRef = await addDoc(collectionRef, { ...data });
+    }
   } catch (error) {
     console.error('Error adding document: ', error);
   }
