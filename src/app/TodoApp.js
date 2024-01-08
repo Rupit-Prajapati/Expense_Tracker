@@ -219,7 +219,7 @@ const Home = () => {
                 </Flex>
               </Flex>
             )
-          }) : 'Loading...' : 'No data'}
+          }) : 'Loading...' : 'Sign In to store and see data...'}
         </Flex>
       </Container>
     </>
