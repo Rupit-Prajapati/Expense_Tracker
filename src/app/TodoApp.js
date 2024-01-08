@@ -195,7 +195,7 @@ const Home = () => {
           </Flex>
         </Flex>
         <Flex flexDirection={'column'} overflowX={'scroll'}>
-          {expData ? expData.map((data, index) => {
+          {user ? expData ? expData.map((data, index) => {
             const onetimedate = getUniqueDate(data.date)
             return (
               <Flex flexWrap={'wrap'} flexDirection={'column'} key={data.id} overflowX={'scroll'} width={'650px'}
@@ -219,7 +219,7 @@ const Home = () => {
                 </Flex>
               </Flex>
             )
-          }) : 'Loading...'}
+          }) : 'Loading...' : 'No data'}
         </Flex>
       </Container>
     </>
