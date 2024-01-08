@@ -13,10 +13,10 @@ const Home = () => {
   // const dataString = JSON.stringify(data);
   // localStorage.setItem('myData', dataString);
 
-  const storedDataString = localStorage.getItem('myData');
-  const storedData = JSON.parse(storedDataString);
+  // const storedDataString = localStorage.getItem('myData');
+  // const storedData = JSON.parse(storedDataString);
 
-  const expData = storedData && storedData.sort((a, b) => {
+  const expData = data && data.sort((a, b) => {
     const dateA = new Date(a.date);
     const dateB = new Date(b.date);
     return dateB - dateA;
@@ -29,13 +29,9 @@ const Home = () => {
   const getUniqueDate = (date) => {
     const expDate = new Date(date);
     var expFullDate = convertDate(date);
-    console.log(expFullDate)
-
-    var revexpFullDate = convertDate(date, 'yyyy-mm-dd');
     if (uniqueDate !== expFullDate) {
       uniqueDate = expFullDate
 
-      console.log(uniqueDate)
       var Total = dailyTotal[uniqueDate]
       if (currentDate.toDateString() === expDate.toDateString()) {
         return <Flex flexDirection={'column'}>
@@ -69,16 +65,12 @@ const Home = () => {
     var day = currentDate - weekStartDate
     var startDate = convertDate(weekStartDate)
     var endDate = convertDate(weekEndDate)
-    console.log(startDate)
-    console.log(endDate)
     var dayDifference = Math.ceil(day / (1000 * 60 * 60 * 24))
     var revexpFullDate = convertDate(date, 'yyyy-mm-dd');
-    console.log(revexpFullDate)
 
     if (uniqueWeekDate !== weekStartDate) {
       uniqueWeekDate = weekStartDate
       if (dayDifference < 7) {
-        console.log('currentWeek')
         return <Flex flexDirection={'column'}>
           {weeklyTotal[revexpFullDate] ? <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
             <Text as={'h6'} fontWeight={'600'}>This Week's Total expenses : Rs {weeklyTotal[revexpFullDate]}</Text>
@@ -86,7 +78,6 @@ const Home = () => {
         </Flex>
       }
       if (dayDifference < 13) {
-        console.log('lastWeek')
         return <Flex flexDirection={'column'}>
           {weeklyTotal[revexpFullDate] ? <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
             <Text as={'h6'} fontWeight={'600'}>Last Week's Total expenses : Rs {weeklyTotal[revexpFullDate]}</Text>
@@ -204,7 +195,7 @@ const Home = () => {
           </Flex>
         </Flex>
         <Flex flexDirection={'column'} overflowX={'scroll'}>
-          {expData && expData.map((data, index) => {
+          {expData ? expData.map((data, index) => {
             const onetimedate = getUniqueDate(data.date)
             return (
               <Flex flexWrap={'wrap'} flexDirection={'column'} key={data.id} overflowX={'scroll'} width={'650px'}
@@ -228,7 +219,7 @@ const Home = () => {
                 </Flex>
               </Flex>
             )
-          })}
+          }) : 'Loading...'}
         </Flex>
       </Container>
     </>

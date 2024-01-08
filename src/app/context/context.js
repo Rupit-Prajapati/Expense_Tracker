@@ -89,6 +89,7 @@ export const Context = ({ children }) => {
   }
   const signOut = () => {
     setUser(null);
+    setData(null)
   };
   const getData = async () => {
     let response = await fetch(`api/${collectionName}`);
