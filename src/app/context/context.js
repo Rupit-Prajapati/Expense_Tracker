@@ -36,21 +36,20 @@ export const Context = ({ children }) => {
 
   var currentDate = new Date();
   const yesterday = new Date(currentDate);
-  var reversedDate = convertDate(currentDate, 'reversedDate', 'time')
-  var fullDateTime = reversedDate
+  yesterday.setDate(currentDate.getDate() - 1);
 
   const [collectionName, setCollectionName] = useState(null)
   const [id, setId] = useState()
   const [productName, setProductName] = useState('')
   const [price, setPrice] = useState(0)
   const [error, setError] = useState('')
-  const [date, setDate] = useState(fullDateTime)
+  const [date, setDate] = useState('')
   const [data, setData] = useState(null);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    setDate(fullDateTime)
+    setDate(convertDate(currentDate, 'reversedDate', 'time'));
     if (user) {
       var fullName = user.displayName;
       fullName = fullName.split(" ")[0];
@@ -64,19 +63,15 @@ export const Context = ({ children }) => {
       getData();
     }
   }, [collectionName]);
-  yesterday.setDate(currentDate.getDate() - 1);
-  const signIn = () => {
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-        setUser(result.user);
-        createCollection();
-      }).catch((error) => {
-        setUser(null)
-        console.log('Error:', error);
-        const credential = GoogleAuthProvider.credentialFromError(error);
-      });
+  const signIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      setUser(result.user);
+      createCollection();
+    } catch (error) {
+      setUser(null);
+      console.log('Error:', error);
+    }
   }
 
   const createCollection = () => {
@@ -151,7 +146,7 @@ export const Context = ({ children }) => {
 
       setProductName('');
       setPrice(0);
-      setDate(fullDateTime);
+      setDate(date);
 
       response = await response.json();
       await getData();
@@ -178,7 +173,7 @@ export const Context = ({ children }) => {
       setId('')
       setProductName('')
       setPrice('')
-      setDate(fullDateTime)
+      setDate(date)
     } catch (error) {
       console.error('Error updating data: ', error);
     }
@@ -201,11 +196,12 @@ export const Context = ({ children }) => {
     setId('')
     setProductName('')
     setPrice('')
-    setDate(fullDateTime)
+    setDate(date)
   }
   const contextValue = {
-    currentDate, yesterday, error, data, date, isLoading, cancel, setDate, deleteData, addData, dataUpdate, dataById, setProductName, setPrice, id, productName, price, data, convertDate, signIn, signOut, user
+    currentDate, yesterday, error, data, date, isLoading, id, productName, price, user, cancel, setDate, deleteData, addData, dataUpdate, dataById, setProductName, setPrice, convertDate, signIn, signOut
   }
+
   return (
     <MyContext.Provider value={contextValue}>{children}</MyContext.Provider>
   )

@@ -1,9 +1,6 @@
 'use client'
-import { Box, Container, Flex, Input, Button, Text, cookieStorageManager, StepDescription, NumberInput, NumberInputField, FormLabel, FormHelperText, FormErrorMessage, FormControl, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper, Toast } from '@chakra-ui/react';
+import { Box, Heading, Container, Flex, Input, Button, Text, NumberInput, NumberInputField, FormLabel } from '@chakra-ui/react';
 import { useMyContext } from './context/context';
-import { Heading } from '@chakra-ui/react';
-import { Table, TableCaption, TableContainer, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
 import { MdAdd, MdDelete, MdEdit } from "react-icons/md"
 import { TiCancel } from "react-icons/ti";
 
@@ -21,8 +18,6 @@ const Home = () => {
     const dateB = new Date(b.date);
     return dateB - dateA;
   });
-  useEffect(() => {
-  }, [])
   var uniqueDate = null;
   var uniqueWeekDate = null;
 
@@ -131,6 +126,7 @@ const Home = () => {
   };
   const calculateWeeklyTotal = (groupedExpenses) => {
     const weeklyTotal = {};
+
     for (const weekStartDate in groupedExpenses) {
       const expensesInWeek = groupedExpenses[weekStartDate];
       const total = expensesInWeek.reduce((acc, expense) => acc + parseFloat(expense.price), 0);
@@ -140,13 +136,11 @@ const Home = () => {
   };
   const groupExpensesByDay = (expenses) => {
     const dayExpenses = {};
-
     expenses.forEach((expense) => {
       const weekStartDayString = convertDate(expense.date);
       if (!dayExpenses[weekStartDayString]) {
         dayExpenses[weekStartDayString] = [];
       }
-
       dayExpenses[weekStartDayString].push(expense);
     });
 
@@ -219,7 +213,15 @@ const Home = () => {
                 </Flex>
               </Flex>
             )
-          }) : 'Loading...' : 'Sign In to store and see data...'}
+          }) : <Flex flexDirection={'column'}>
+            <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
+              <Text as={'h6'} fontWeight={'600'}>Loading...</Text>
+            </Box>
+          </Flex> : <Flex flexDirection={'column'}>
+            <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
+              <Text as={'h6'} fontWeight={'600'}>Sign In to store and see data...</Text>
+            </Box>
+          </Flex>}
         </Flex>
       </Container>
     </>
