@@ -10,10 +10,10 @@ const Home = () => {
   // const dataString = JSON.stringify(data);
   // localStorage.setItem('myData', dataString);
 
-  const storedDataString = localStorage.getItem('myData');
-  const storedData = JSON.parse(storedDataString);
+  // const storedDataString = localStorage.getItem('myData');
+  // const storedData = JSON.parse(storedDataString);
 
-  const expData = storedData && storedData.sort((a, b) => {
+  const expData = data && data.sort((a, b) => {
     const dateA = new Date(a.date);
     const dateB = new Date(b.date);
     return dateB - dateA;
