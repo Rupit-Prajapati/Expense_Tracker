@@ -1,5 +1,5 @@
 'use client'
-import { Box, Heading, Container, Flex, Input, Button, Text, NumberInput, NumberInputField, FormLabel } from '@chakra-ui/react';
+import { Box, Heading, Container, Flex, Input, Button, Text, NumberInput, NumberInputField, FormLabel, filter } from '@chakra-ui/react';
 import { useMyContext } from './context/context';
 import { MdAdd, MdDelete, MdEdit } from "react-icons/md"
 import { TiCancel } from "react-icons/ti";
@@ -19,7 +19,6 @@ const Home = () => {
     return dateB - dateA;
   });
   var uniqueDate = null;
-  var uniqueWeekDate = null;
 
   const getUniqueDate = (date) => {
     const expDate = new Date(date);
@@ -47,40 +46,7 @@ const Home = () => {
       </Box> </Flex>
     }
   }
-  const weekTotal = (date) => {
-    const expDate = new Date(date);
-    const dayOfWeek = expDate.getDay();
-    const weekStartDate = new Date(date);
-    weekStartDate.setDate(expDate.getDate() - dayOfWeek);
-    const weekEndDate = new Date(date);
-    weekEndDate.setDate(weekStartDate.getDate() + 6);
-    const startDate = convertDate(weekStartDate);
-    const endDate = convertDate(weekEndDate);
-    const dayDifference = Math.ceil((currentDate - weekStartDate) / (1000 * 60 * 60 * 24));
-    const revexpFullDate = convertDate(weekStartDate, 'yyyy-mm-dd');
-    const weekText = (prefix, total) => (
-      <Flex flexDirection={'column'}>
-        {total && (
-          <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
-            <Text as={'h6'} fontWeight={'600'}>{`${prefix} : Rs ${total}`}</Text>
-          </Box>
-        )}
-      </Flex>
-    );
 
-    if (uniqueWeekDate !== weekStartDate) {
-      uniqueWeekDate = weekStartDate;
-    }
-    if (expDate.getDate() === currentDate.getDate()) {
-      return weekText('This Week\'s Total expenses', weeklyTotal[revexpFullDate]);
-    }
-    if (weekEndDate.getDate() === expDate.getDate()) {
-      if (dayDifference < 13) {
-        return weekText('Last Week\'s Total expenses', weeklyTotal[revexpFullDate]);
-      }
-      return weekText(`${startDate} To ${endDate}`, weeklyTotal[revexpFullDate]);
-    }
-  };
 
   const time = (date) => {
     const expDate = new Date(date);
@@ -155,7 +121,42 @@ const Home = () => {
   const weeklyTotal = calculateWeeklyTotal(groupedExpenses);
   const weeklygroupedExpenses = expData && groupExpensesByDay(expData);
   const dailyTotal = calculateDailyTotal(weeklygroupedExpenses);
+  const anotherWeekTotal = (date) => {
+    const expDate = new Date(date);
+    const weekStartDate = new Date(expDate);
+    weekStartDate.setDate(expDate.getDate() - expDate.getDay())
+    var startDate = convertDate(weekStartDate);
+    const weekEndDate = new Date(date);
+    weekEndDate.setDate(weekStartDate.getDate() + 6)
+    const endDate = convertDate(weekEndDate)
+    var weekStartDateString = weekStartDate.toISOString().split("T")[0];
+    const dayDifference = Math.ceil((currentDate - weekStartDate) / (1000 * 60 * 60 * 24));
 
+
+    var prices = groupedExpenses[weekStartDateString].map((date) => date.price);
+    var date = groupedExpenses[weekStartDateString].map((date) => date.date);
+    const filterDate = new Date(date.reduce((a, b) => a > b ? a : b));
+    var totalPrices = prices.reduce((a, b) => a + parseFloat(b), 0)
+    var datePrice = { "date": filterDate, "price": totalPrices.toFixed(2) }
+    const weekText = (prefix, total) => (
+      <Flex flexDirection={'column'}>
+        {total && (
+          <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
+            <Text as={'h6'} fontWeight={'600'}>{`${prefix} : Rs ${total}`}</Text>
+          </Box>
+        )}
+      </Flex>
+    );
+
+    if (datePrice.date.getDate() === expDate.getDate()) {
+      if (dayDifference < 7) {
+        return weekText('This Week\'s Total expenses', datePrice.price);
+      } else if (dayDifference < 13) {
+        return weekText('Last Week\'s Total expenses', datePrice.price);
+      }
+      return weekText(`${startDate} To ${endDate}`, datePrice.price);
+    }
+  }
   return (
     <>
       <Container maxW={['95%', '540px', '650px', '650px', '650px', '650px',]} margin={'0px auto'} px={'5px'}>
@@ -184,41 +185,41 @@ const Home = () => {
         </Flex>
         <Flex flexDirection={'column'} overflowX={'scroll'}>
           {
-            // user ?
-            expData ? expData.map((data, index) => {
-              const onetimedate = getUniqueDate(data.date)
-              return (
-                <Flex flexWrap={'wrap'} flexDirection={'column'} key={data.id} overflowX={'scroll'} width={'650px'}
-                  backgroundColor={index % 2 == 1 ? 'white' : '#B2F5EA'}>
-                  {onetimedate ? weekTotal(data.date) : ''}
-                  {onetimedate}
-                  <Flex gap={'0px'} justifyContent={'space-between'} alignItems={'center'} p={'10px'}>
-                    <Box w={'120px'} >
-                      <Text as={'h6'} fontWeight={'500'}>{time(data.date)}</Text>
-                    </Box>
-                    <Box w={'200px'} >
-                      <Text as={'h6'} fontWeight={'500'}>{data.productName}</Text>
-                    </Box>
-                    <Box w={'80px'} >
-                      <Text as={'h6'} fontWeight={'500'}>{data.price}</Text>
-                    </Box>
-                    <Flex flexWrap={'wrap'} gap={'10px'} w={'auto'} >
-                      <Button p={'10px'} leftIcon={<MdDelete />} onClick={() => deleteData(data.id)} colorScheme='red' >Delete</Button>
-                      <Button p={'10px'} leftIcon={<MdEdit />} onClick={() => dataById(data.id)} colorScheme='blue'>Edit</Button>
+            user ?
+              expData ? expData.map((data, index) => {
+                const onetimedate = getUniqueDate(data.date)
+                return (
+                  <Flex flexWrap={'wrap'} flexDirection={'column'} key={data.id} overflowX={'scroll'} width={'650px'}
+                    backgroundColor={index % 2 == 1 ? 'white' : '#B2F5EA'}>
+                    {onetimedate ? anotherWeekTotal(data.date) : ''}
+                    {onetimedate}
+                    <Flex gap={'0px'} justifyContent={'space-between'} alignItems={'center'} p={'10px'}>
+                      <Box w={'120px'} >
+                        <Text as={'h6'} fontWeight={'500'}>{time(data.date)}</Text>
+                      </Box>
+                      <Box w={'200px'} >
+                        <Text as={'h6'} fontWeight={'500'}>{data.productName}</Text>
+                      </Box>
+                      <Box w={'80px'} >
+                        <Text as={'h6'} fontWeight={'500'}>{data.price}</Text>
+                      </Box>
+                      <Flex flexWrap={'wrap'} gap={'10px'} w={'auto'} >
+                        <Button p={'10px'} leftIcon={<MdDelete />} onClick={() => deleteData(data.id)} colorScheme='red' >Delete</Button>
+                        <Button p={'10px'} leftIcon={<MdEdit />} onClick={() => dataById(data.id)} colorScheme='blue'>Edit</Button>
+                      </Flex>
                     </Flex>
                   </Flex>
-                </Flex>
-              )
-            }) : <Flex flexDirection={'column'}>
-              <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
-                <Text as={'h6'} fontWeight={'600'}>Loading...</Text>
-              </Box>
-            </Flex>
-            // : <Flex flexDirection={'column'}>
-            //   <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
-            //     <Text as={'h6'} fontWeight={'600'}>Sign In to store and see data...</Text>
-            //   </Box>
-            // </Flex>
+                )
+              }) : <Flex flexDirection={'column'}>
+                <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
+                  <Text as={'h6'} fontWeight={'600'}>Loading...</Text>
+                </Box>
+              </Flex>
+              : <Flex flexDirection={'column'}>
+                <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
+                  <Text as={'h6'} fontWeight={'600'}>Sign In to store and see data...</Text>
+                </Box>
+              </Flex>
           }
         </Flex>
       </Container>
