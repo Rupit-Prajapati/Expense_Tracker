@@ -8,8 +8,8 @@ const MyContext = createContext();
 
 export const Context = ({ children }) => {
 
-  const convertDate = (converibleDate, reversedDate, time) => {
-    var date = new Date(converibleDate);
+  const convertDate = (convertibleDate, reversedDate, time) => {
+    var date = new Date(convertibleDate);
     var year = date.getFullYear();
     var twoDigitMonth = date.getMonth() + 1;
     var month = twoDigitMonth < 10 ? `0${twoDigitMonth}` : twoDigitMonth;
@@ -21,8 +21,7 @@ export const Context = ({ children }) => {
     var minute = twoDigitMinute < 10 ? `0${twoDigitMinute}` : twoDigitMinute;
 
     const ddmmyyyy = `${date}-${month}-${year}`
-    const dateComponents = ddmmyyyy.split('-');
-    const reversedDateString = `${dateComponents[2]}-${dateComponents[1]}-${dateComponents[0]}`;
+    const reversedDateString = `${year}-${month}-${date}`;
     if (reversedDate && time) {
       return `${reversedDateString}T${hour}:${minute}`
     }

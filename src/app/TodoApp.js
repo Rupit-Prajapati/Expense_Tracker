@@ -10,10 +10,10 @@ const Home = () => {
   // const dataString = JSON.stringify(data);
   // localStorage.setItem('myData', dataString);
 
-  // const storedDataString = localStorage.getItem('myData');
-  // const storedData = JSON.parse(storedDataString);
+  const storedDataString = localStorage.getItem('myData');
+  const storedData = JSON.parse(storedDataString);
 
-  const expData = data && data.sort((a, b) => {
+  const expData = storedData && storedData.sort((a, b) => {
     const dateA = new Date(a.date);
     const dateB = new Date(b.date);
     return dateB - dateA;
@@ -48,67 +48,58 @@ const Home = () => {
     }
   }
   const weekTotal = (date) => {
-    var expDate = new Date(date)
-    var dayOfWeek = expDate.getDay()
-    var weekStartDate = new Date(date)
-    var expdate = expDate.getDate() - dayOfWeek;
-    weekStartDate.setDate(expdate)
-    expdate = expDate.getDate() + 6;
-    var weekEndDate = new Date(date)
-    expdate = expDate.getDate() - dayOfWeek + 6;
-    weekEndDate.setDate(expdate)
-    var day = currentDate - weekStartDate
-    var startDate = convertDate(weekStartDate)
-    var endDate = convertDate(weekEndDate)
-    var dayDifference = Math.ceil(day / (1000 * 60 * 60 * 24))
-    var revexpFullDate = convertDate(date, 'yyyy-mm-dd');
+    const expDate = new Date(date);
+    const dayOfWeek = expDate.getDay();
+    const weekStartDate = new Date(date);
+    weekStartDate.setDate(expDate.getDate() - dayOfWeek);
+    const weekEndDate = new Date(date);
+    weekEndDate.setDate(weekStartDate.getDate() + 6);
+    const startDate = convertDate(weekStartDate);
+    const endDate = convertDate(weekEndDate);
+    const dayDifference = Math.ceil((currentDate - weekStartDate) / (1000 * 60 * 60 * 24));
+    const revexpFullDate = convertDate(weekStartDate, 'yyyy-mm-dd');
+    const weekText = (prefix, total) => (
+      <Flex flexDirection={'column'}>
+        {total && (
+          <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
+            <Text as={'h6'} fontWeight={'600'}>{`${prefix} : Rs ${total}`}</Text>
+          </Box>
+        )}
+      </Flex>
+    );
 
     if (uniqueWeekDate !== weekStartDate) {
-      uniqueWeekDate = weekStartDate
-      if (dayDifference < 7) {
-        return <Flex flexDirection={'column'}>
-          {weeklyTotal[revexpFullDate] ? <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
-            <Text as={'h6'} fontWeight={'600'}>This Week's Total expenses : Rs {weeklyTotal[revexpFullDate]}</Text>
-          </Box> : ''}
-        </Flex>
-      }
+      uniqueWeekDate = weekStartDate;
+    }
+    if (expDate.getDate() === currentDate.getDate()) {
+      return weekText('This Week\'s Total expenses', weeklyTotal[revexpFullDate]);
+    }
+    if (weekEndDate.getDate() === expDate.getDate()) {
       if (dayDifference < 13) {
-        return <Flex flexDirection={'column'}>
-          {weeklyTotal[revexpFullDate] ? <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
-            <Text as={'h6'} fontWeight={'600'}>Last Week's Total expenses : Rs {weeklyTotal[revexpFullDate]}</Text>
-          </Box> : ''}
-        </Flex>
+        return weekText('Last Week\'s Total expenses', weeklyTotal[revexpFullDate]);
       }
-      return <Flex flexDirection={'column'}>
-        {weeklyTotal[revexpFullDate] ? <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
-          <Text as={'h6'} fontWeight={'600'}>{startDate} To {endDate} : Rs {weeklyTotal[revexpFullDate]}</Text>
-        </Box> : ''}
-      </Flex>
+      return weekText(`${startDate} To ${endDate}`, weeklyTotal[revexpFullDate]);
     }
-    if (revexpFullDate) {
-    }
-    if (uniqueDate) {
+  };
 
-      console.log('working')
-    }
-  }
   const time = (date) => {
     const expDate = new Date(date);
-    var hour = expDate.getHours();
+    let hour = expDate.getHours();
     const minute = expDate.getMinutes();
-    var timeDifference = Math.floor((currentDate - expDate) / 60000);
+    const timeDifference = Math.floor((currentDate - expDate) / 60000);
+
     if (timeDifference < 1) {
-      return 'Just Now'
+      return 'Just Now';
     } else if (timeDifference < 60) {
-      return `${timeDifference}min ago`
+      return `${timeDifference}min ago`;
     } else {
       if (hour > 12) {
-        hour = hour - 12
-        return `${hour}:${minute} PM`
+        hour -= 12;
+        return `${hour}:${minute} PM`;
       }
-      return `${hour}:${minute} AM`
+      return `${hour}:${minute} AM`;
     }
-  }
+  };
   const groupExpensesByWeek = (expenses) => {
     const groupedExpenses = {};
     expenses.forEach((expense) => {
@@ -117,6 +108,7 @@ const Home = () => {
       const weekStartDate = new Date(expenseDate);
       weekStartDate.setDate(expenseDate.getDate() - dayOfWeek);
       const weekStartDateString = weekStartDate.toISOString().split('T')[0];
+
       if (!groupedExpenses[weekStartDateString]) {
         groupedExpenses[weekStartDateString] = [];
       }
@@ -132,22 +124,24 @@ const Home = () => {
       const total = expensesInWeek.reduce((acc, expense) => acc + parseFloat(expense.price), 0);
       weeklyTotal[weekStartDate] = total.toFixed(2);
     }
+
     return weeklyTotal;
   };
   const groupExpensesByDay = (expenses) => {
     const dayExpenses = {};
     expenses.forEach((expense) => {
       const weekStartDayString = convertDate(expense.date);
+
       if (!dayExpenses[weekStartDayString]) {
         dayExpenses[weekStartDayString] = [];
       }
       dayExpenses[weekStartDayString].push(expense);
     });
-
     return dayExpenses;
   };
   const calculateDailyTotal = (groupedExpenses) => {
     const dailyTotal = {};
+
     for (const weekDays in groupedExpenses) {
       const dayexpensesInWeek = groupedExpenses[weekDays];
       if (dayexpensesInWeek.length > 2) {
@@ -189,39 +183,43 @@ const Home = () => {
           </Flex>
         </Flex>
         <Flex flexDirection={'column'} overflowX={'scroll'}>
-          {user ? expData ? expData.map((data, index) => {
-            const onetimedate = getUniqueDate(data.date)
-            return (
-              <Flex flexWrap={'wrap'} flexDirection={'column'} key={data.id} overflowX={'scroll'} width={'650px'}
-                backgroundColor={index % 2 == 1 ? 'white' : '#B2F5EA'}>
-                {onetimedate ? weekTotal(data.date) : ''}
-                {onetimedate}
-                <Flex gap={'0px'} justifyContent={'space-between'} alignItems={'center'} p={'10px'}>
-                  <Box w={'120px'} >
-                    <Text as={'h6'} fontWeight={'500'}>{time(data.date)}</Text>
-                  </Box>
-                  <Box w={'200px'} >
-                    <Text as={'h6'} fontWeight={'500'}>{data.productName}</Text>
-                  </Box>
-                  <Box w={'80px'} >
-                    <Text as={'h6'} fontWeight={'500'}>{data.price}</Text>
-                  </Box>
-                  <Flex flexWrap={'wrap'} gap={'10px'} w={'auto'} >
-                    <Button p={'10px'} leftIcon={<MdDelete />} onClick={() => deleteData(data.id)} colorScheme='red' >Delete</Button>
-                    <Button p={'10px'} leftIcon={<MdEdit />} onClick={() => dataById(data.id)} colorScheme='blue'>Edit</Button>
+          {
+            // user ?
+            expData ? expData.map((data, index) => {
+              const onetimedate = getUniqueDate(data.date)
+              return (
+                <Flex flexWrap={'wrap'} flexDirection={'column'} key={data.id} overflowX={'scroll'} width={'650px'}
+                  backgroundColor={index % 2 == 1 ? 'white' : '#B2F5EA'}>
+                  {onetimedate ? weekTotal(data.date) : ''}
+                  {onetimedate}
+                  <Flex gap={'0px'} justifyContent={'space-between'} alignItems={'center'} p={'10px'}>
+                    <Box w={'120px'} >
+                      <Text as={'h6'} fontWeight={'500'}>{time(data.date)}</Text>
+                    </Box>
+                    <Box w={'200px'} >
+                      <Text as={'h6'} fontWeight={'500'}>{data.productName}</Text>
+                    </Box>
+                    <Box w={'80px'} >
+                      <Text as={'h6'} fontWeight={'500'}>{data.price}</Text>
+                    </Box>
+                    <Flex flexWrap={'wrap'} gap={'10px'} w={'auto'} >
+                      <Button p={'10px'} leftIcon={<MdDelete />} onClick={() => deleteData(data.id)} colorScheme='red' >Delete</Button>
+                      <Button p={'10px'} leftIcon={<MdEdit />} onClick={() => dataById(data.id)} colorScheme='blue'>Edit</Button>
+                    </Flex>
                   </Flex>
                 </Flex>
-              </Flex>
-            )
-          }) : <Flex flexDirection={'column'}>
-            <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
-              <Text as={'h6'} fontWeight={'600'}>Loading...</Text>
-            </Box>
-          </Flex> : <Flex flexDirection={'column'}>
-            <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
-              <Text as={'h6'} fontWeight={'600'}>Sign In to store and see data...</Text>
-            </Box>
-          </Flex>}
+              )
+            }) : <Flex flexDirection={'column'}>
+              <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
+                <Text as={'h6'} fontWeight={'600'}>Loading...</Text>
+              </Box>
+            </Flex>
+            // : <Flex flexDirection={'column'}>
+            //   <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
+            //     <Text as={'h6'} fontWeight={'600'}>Sign In to store and see data...</Text>
+            //   </Box>
+            // </Flex>
+          }
         </Flex>
       </Container>
     </>
