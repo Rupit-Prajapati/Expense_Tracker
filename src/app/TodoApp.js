@@ -10,10 +10,10 @@ const Home = () => {
   // const dataString = JSON.stringify(data);
   // localStorage.setItem('myData', dataString);
 
-  // const storedDataString = localStorage.getItem('myData');
-  // const storedData = JSON.parse(storedDataString);
+  const storedDataString = localStorage.getItem('myData');
+  const storedData = JSON.parse(storedDataString);
 
-  const expData = data && data.sort((a, b) => {
+  const expData = storedData && storedData.sort((a, b) => {
     const dateA = new Date(a.date);
     const dateB = new Date(b.date);
     return dateB - dateA;
@@ -126,9 +126,10 @@ const Home = () => {
     const weekStartDate = new Date(expDate);
     weekStartDate.setDate(expDate.getDate() - expDate.getDay())
     var startDate = convertDate(weekStartDate);
-    const weekEndDate = new Date(date);
-    weekEndDate.setDate(weekStartDate.getDate() + 6)
+    const weekEndDate = new Date(weekStartDate);
+    weekEndDate.setDate(weekEndDate.getDate() + 6)
     const endDate = convertDate(weekEndDate)
+
     var weekStartDateString = weekStartDate.toISOString().split("T")[0];
     const dayDifference = Math.ceil((currentDate - weekStartDate) / (1000 * 60 * 60 * 24));
 
