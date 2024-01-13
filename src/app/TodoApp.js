@@ -3,50 +3,17 @@ import { Box, Heading, Container, Flex, Input, Button, Text, NumberInput, Number
 import { useMyContext } from './context/context';
 import { MdAdd, MdDelete, MdEdit } from "react-icons/md"
 import { TiCancel } from "react-icons/ti";
+import { steps } from 'framer-motion';
 
 const Home = () => {
   const { user, data, error, currentDate, yesterday, isLoading, deleteData, date, setDate, cancel, addData, dataUpdate, dataById, setProductName, convertDate, setPrice, productName, price, id } = useMyContext()
 
-  // const dataString = JSON.stringify(data);
-  // localStorage.setItem('myData', dataString);
-
-  const storedDataString = localStorage.getItem('myData');
-  const storedData = JSON.parse(storedDataString);
-
-  const expData = storedData && storedData.sort((a, b) => {
+  const expData = data && data.sort((a, b) => {
     const dateA = new Date(a.date);
     const dateB = new Date(b.date);
     return dateB - dateA;
   });
   var uniqueDate = null;
-
-  const getUniqueDate = (date) => {
-    const expDate = new Date(date);
-    var expFullDate = convertDate(date);
-    if (uniqueDate !== expFullDate) {
-      uniqueDate = expFullDate
-
-      var Total = dailyTotal[uniqueDate]
-      if (currentDate.toDateString() === expDate.toDateString()) {
-        return <Flex flexDirection={'column'}>
-          <Box w={'100%'} p={'10px '} color={'#fff'} background={'#4299e1'}>
-            <Text as={'h6'} fontWeight={'600'}>{Total ? `Total of Today's expenses : Rs ${Total}` : `Today`}</Text>
-          </Box></Flex>
-      }
-      if (yesterday.toDateString() === expDate.toDateString()) {
-        return <Flex flexDirection={'column'}>
-          <Box w={'100%'} p={'10px '} color={'#fff'} background={'#4299e1'}>
-            <Text as={'h6'} fontWeight={'600'}>{Total ? `Total of Yesterday's expenses : Rs ${Total}` : `Yesterday`}</Text>
-          </Box>
-        </Flex>
-      }
-
-      return <Flex flexDirection={'column'}><Box w={'100%'} p={'10px '} color={'#fff'} background={'#4299e1'}>
-        <Text as={'h6'} fontWeight={'600'}>{Total ? `Total of  ${uniqueDate} expenses : Rs ${Total}` : `${uniqueDate}`}</Text>
-      </Box> </Flex>
-    }
-  }
-
 
   const time = (date) => {
     const expDate = new Date(date);
@@ -66,8 +33,40 @@ const Home = () => {
       return `${hour}:${minute} AM`;
     }
   };
+  const getMonthDifference = (expDate, currentDate) => {
+    const expYear = expDate.getFullYear();
+    const expMonth = expDate.getMonth();
+
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+
+    var monthDifference = (currentYear - expYear) * 12 + (currentMonth - expMonth);
+    var year = Math.floor(monthDifference / 12);
+    var month = monthDifference % 12;
+    return { "year": year, "month": month };
+  };
+  const groupExpensesByMonth = (expenses) => {
+    const groupedExpensesByWeek = {};
+    expenses.forEach((expense) => {
+      const endDateOfMonth = (date) => {
+        const lastDate = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+        lastDate.setDate(lastDate.getDate() - 1)
+        var lastDateString = convertDate(lastDate)
+        return lastDateString;
+      };
+      const expenseDate = new Date(expense.date);
+      const endMonthDate = endDateOfMonth(expenseDate);
+      if (!groupedExpensesByWeek[endMonthDate]) {
+        groupedExpensesByWeek[endMonthDate] = [];
+      }
+      groupedExpensesByWeek[endMonthDate].push(expense);
+    });
+    return groupedExpensesByWeek;
+  };
   const groupExpensesByWeek = (expenses) => {
-    const groupedExpenses = {};
+
+    const groupedExpensesByWeek = {};
+
     expenses.forEach((expense) => {
       const expenseDate = new Date(expense.date);
       const dayOfWeek = expenseDate.getDay();
@@ -75,29 +74,17 @@ const Home = () => {
       weekStartDate.setDate(expenseDate.getDate() - dayOfWeek);
       const weekStartDateString = weekStartDate.toISOString().split('T')[0];
 
-      if (!groupedExpenses[weekStartDateString]) {
-        groupedExpenses[weekStartDateString] = [];
+      if (!groupedExpensesByWeek[weekStartDateString]) {
+        groupedExpensesByWeek[weekStartDateString] = [];
       }
-      groupedExpenses[weekStartDateString].push(expense);
+      groupedExpensesByWeek[weekStartDateString].push(expense);
     });
-    return groupedExpenses;
-  };
-  const calculateWeeklyTotal = (groupedExpenses) => {
-    const weeklyTotal = {};
-
-    for (const weekStartDate in groupedExpenses) {
-      const expensesInWeek = groupedExpenses[weekStartDate];
-      const total = expensesInWeek.reduce((acc, expense) => acc + parseFloat(expense.price), 0);
-      weeklyTotal[weekStartDate] = total.toFixed(2);
-    }
-
-    return weeklyTotal;
+    return groupedExpensesByWeek;
   };
   const groupExpensesByDay = (expenses) => {
     const dayExpenses = {};
     expenses.forEach((expense) => {
       const weekStartDayString = convertDate(expense.date);
-
       if (!dayExpenses[weekStartDayString]) {
         dayExpenses[weekStartDayString] = [];
       }
@@ -105,37 +92,56 @@ const Home = () => {
     });
     return dayExpenses;
   };
-  const calculateDailyTotal = (groupedExpenses) => {
-    const dailyTotal = {};
+  const calculateMonthlyTotal = (date) => {
+    var currentDate = new Date();
+    const expenseDate = new Date(date);
+    const expenseDateString = convertDate(expenseDate);
+    const endDate = new Date(expenseDate.getFullYear(), expenseDate.getMonth() + 1, 1);
+    endDate.setDate(endDate.getDate() - 1)
+    var startDate = new Date(expenseDate.getFullYear(), expenseDate.getMonth(), 1);
+    var startDateString = convertDate(startDate)
+    var endDateString = convertDate(endDate)
 
-    for (const weekDays in groupedExpenses) {
-      const dayexpensesInWeek = groupedExpenses[weekDays];
-      if (dayexpensesInWeek.length > 2) {
-        const total = dayexpensesInWeek.reduce((acc, expense) => acc + parseFloat(expense.price), 0);
-        dailyTotal[weekDays] = total.toFixed(2);
+    const differenceInMonths = getMonthDifference(expenseDate, currentDate);
+    const weekText = (prefix, total) => (
+      <Flex flexDirection={'column'}>
+        {total && (
+          <Box w={'100%'} p={'10px '} color={'#fff'} background={'#3182CE'}>
+            <Text as={'h6'} fontWeight={'600'}>{`${prefix} : Rs ${total}`}</Text>
+          </Box>
+        )}
+      </Flex>
+    );
+    var date = new Date(date)
+    var prices = groupedExpensesByMonth[endDateString].map((date) => date.price);
+    var date = groupedExpensesByMonth[endDateString].map((date) => date.date);
+    const filterDate = convertDate(new Date(date.reduce((a, b) => a > b ? a : b)));
+    var totalPrices = prices.reduce((a, b) => a + parseFloat(b), 0)
+    var datePrice = { "date": filterDate, "price": totalPrices.toFixed(2) }
+
+    if (datePrice.date === expenseDateString) {
+      if (differenceInMonths.year === 0 && differenceInMonths.month === 0) {
+        return weekText('This Month\'s Total expenses', datePrice.price);
       }
+      if (differenceInMonths.year === 0 && differenceInMonths.month === 1) {
+        return weekText('Last Month\'s Total expenses', datePrice.price);
+      }
+      return weekText(`${startDateString} To ${endDateString}`, datePrice.price)
     }
-    return dailyTotal;
   };
-  const groupedExpenses = expData && groupExpensesByWeek(expData);
-  const weeklyTotal = calculateWeeklyTotal(groupedExpenses);
-  const weeklygroupedExpenses = expData && groupExpensesByDay(expData);
-  const dailyTotal = calculateDailyTotal(weeklygroupedExpenses);
-  const anotherWeekTotal = (date) => {
+  const calculateWeeklyTotal = (date) => {
     const expDate = new Date(date);
     const weekStartDate = new Date(expDate);
     weekStartDate.setDate(expDate.getDate() - expDate.getDay())
     var startDate = convertDate(weekStartDate);
     const weekEndDate = new Date(weekStartDate);
-    weekEndDate.setDate(weekEndDate.getDate() + 6)
+    weekEndDate.setDate(weekStartDate.getDate() + 6)
     const endDate = convertDate(weekEndDate)
-
     var weekStartDateString = weekStartDate.toISOString().split("T")[0];
     const dayDifference = Math.ceil((currentDate - weekStartDate) / (1000 * 60 * 60 * 24));
 
-
-    var prices = groupedExpenses[weekStartDateString].map((date) => date.price);
-    var date = groupedExpenses[weekStartDateString].map((date) => date.date);
+    var prices = groupedExpensesByWeek[weekStartDateString].map((date) => date.price);
+    var date = groupedExpensesByWeek[weekStartDateString].map((date) => date.date);
     const filterDate = new Date(date.reduce((a, b) => a > b ? a : b));
     var totalPrices = prices.reduce((a, b) => a + parseFloat(b), 0)
     var datePrice = { "date": filterDate, "price": totalPrices.toFixed(2) }
@@ -148,16 +154,56 @@ const Home = () => {
         )}
       </Flex>
     );
-
     if (datePrice.date.getDate() === expDate.getDate()) {
       if (dayDifference < 7) {
         return weekText('This Week\'s Total expenses', datePrice.price);
       } else if (dayDifference < 13) {
-        return weekText('Last Week\'s Total expenses', datePrice.price);
+        return weekText(`${startDate} To ${endDate}`, datePrice.price);
       }
       return weekText(`${startDate} To ${endDate}`, datePrice.price);
     }
   }
+  const calculateDailyTotal = (date) => {
+    const dailyTotal = {};
+    var expDate = new Date(date)
+    expDate = convertDate(expDate)
+    var currentDateString = convertDate(currentDate)
+    var yesterdayDateString = convertDate(yesterday)
+    for (const expDate in groupedExpensesByDay) {
+      const dayexpensesInWeek = groupedExpensesByDay[expDate];
+      if (dayexpensesInWeek.length > 2) {
+        const total = dayexpensesInWeek.reduce((acc, expense) => acc + parseFloat(expense.price), 0);
+        dailyTotal[expDate] = total.toFixed(2);
+      }
+    }
+    if (uniqueDate !== expDate) {
+      uniqueDate = expDate
+      var Total = dailyTotal[uniqueDate]
+      if (currentDateString === expDate) {
+        return <Flex flexDirection={'column'}>
+          <Box w={'100%'} p={'10px '} color={'#fff'} background={'#4299e1'}>
+            <Text as={'h6'} fontWeight={'600'}>{Total
+              ? `Total of Today's expenses : Rs ${Total}` : `Today`}</Text>
+          </Box></Flex>
+      }
+      if (yesterdayDateString === expDate) {
+        return <Flex flexDirection={'column'}>
+          <Box w={'100%'} p={'10px '} color={'#fff'} background={'#4299e1'}>
+            <Text as={'h6'} fontWeight={'600'}>{Total
+              ? `Total of Yesterday's expenses : Rs ${Total}` : `Yesterday`}</Text>
+          </Box></Flex>
+      }
+      return <Flex flexDirection={'column'}>
+        <Box w={'100%'} p={'10px '} color={'#fff'} background={'#4299e1'}>
+          <Text as={'h6'} fontWeight={'600'}>{Total
+            ? `Total of ${uniqueDate}'s expenses : Rs ${Total}` : `${uniqueDate}`}</Text>
+        </Box></Flex>
+    }
+  };
+
+  const groupedExpensesByMonth = expData && groupExpensesByMonth(expData);
+  const groupedExpensesByWeek = expData && groupExpensesByWeek(expData);
+  const groupedExpensesByDay = expData && groupExpensesByDay(expData);
   return (
     <>
       <Container maxW={['95%', '540px', '650px', '650px', '650px', '650px',]} margin={'0px auto'} px={'5px'}>
@@ -188,11 +234,12 @@ const Home = () => {
           {
             user ?
               expData ? expData.map((data, index) => {
-                const onetimedate = getUniqueDate(data.date)
+                const onetimedate = calculateDailyTotal(data.date)
                 return (
                   <Flex flexWrap={'wrap'} flexDirection={'column'} key={data.id} overflowX={'scroll'} width={'650px'}
                     backgroundColor={index % 2 == 1 ? 'white' : '#B2F5EA'}>
-                    {onetimedate ? anotherWeekTotal(data.date) : ''}
+                    {onetimedate ? calculateMonthlyTotal(data.date) : ''}
+                    {onetimedate ? calculateWeeklyTotal(data.date) : ''}
                     {onetimedate}
                     <Flex gap={'0px'} justifyContent={'space-between'} alignItems={'center'} p={'10px'}>
                       <Box w={'120px'} >

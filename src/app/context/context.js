@@ -66,24 +66,15 @@ export const Context = ({ children }) => {
     try {
       const result = await signInWithPopup(auth, provider);
       setUser(result.user);
-      createCollection();
     } catch (error) {
       setUser(null);
       console.log('Error:', error);
     }
   }
-
-  const createCollection = () => {
-    if (user) {
-      console.log(user.displayName)
-      var collectionNameWithId = `${user.displayName}${user.uid}`
-      collectionNameWithId = collectionNameWithId.replace(/\s/g, '')
-      setCollectionName(collectionNameWithId)
-    }
-  }
-  const signOut = () => {
+  const signOut = async () => {
     setUser(null);
     setData(null)
+    setCollectionName(null)
   };
   const getData = async () => {
     let response = await fetch(`api/${collectionName}`);
