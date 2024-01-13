@@ -1,9 +1,8 @@
 'use client'
-import { Box, Heading, Container, Flex, Input, Button, Text, NumberInput, NumberInputField, FormLabel, filter } from '@chakra-ui/react';
+import { Box, Heading, Container, Flex, Input, Button, Text, NumberInput, NumberInputField, FormLabel } from '@chakra-ui/react';
 import { useMyContext } from './context/context';
 import { MdAdd, MdDelete, MdEdit } from "react-icons/md"
 import { TiCancel } from "react-icons/ti";
-import { steps } from 'framer-motion';
 
 const Home = () => {
   const { user, data, error, currentDate, yesterday, isLoading, deleteData, date, setDate, cancel, addData, dataUpdate, dataById, setProductName, convertDate, setPrice, productName, price, id } = useMyContext()
@@ -119,6 +118,7 @@ const Home = () => {
     var totalPrices = prices.reduce((a, b) => a + parseFloat(b), 0)
     var datePrice = { "date": filterDate, "price": totalPrices.toFixed(2) }
 
+
     if (datePrice.date === expenseDateString) {
       if (differenceInMonths.year === 0 && differenceInMonths.month === 0) {
         return weekText('This Month\'s Total expenses', datePrice.price);
@@ -143,8 +143,7 @@ const Home = () => {
     var prices = groupedExpensesByWeek[weekStartDateString].map((date) => date.price);
     var date = groupedExpensesByWeek[weekStartDateString].map((date) => date.date);
     const filterDate = new Date(date.reduce((a, b) => a > b ? a : b));
-    var totalPrices = prices.reduce((a, b) => a + parseFloat(b), 0)
-    var datePrice = { "date": filterDate, "price": totalPrices.toFixed(2) }
+    var totalPrice = prices.reduce((a, b) => a + parseFloat(b), 0)
     const weekText = (prefix, total) => (
       <Flex flexDirection={'column'}>
         {total && (
@@ -154,13 +153,13 @@ const Home = () => {
         )}
       </Flex>
     );
-    if (datePrice.date.getDate() === expDate.getDate()) {
-      if (dayDifference < 7) {
-        return weekText('This Week\'s Total expenses', datePrice.price);
-      } else if (dayDifference < 13) {
-        return weekText(`${startDate} To ${endDate}`, datePrice.price);
+    if (filterDate.getDate() === expDate.getDate()) {
+      if (dayDifference <= 7) {
+        return weekText('This Week\'s Total expenses', totalPrice);
+      } else if (dayDifference <= 14) {
+        return weekText('Last Week\'s Total expenses', totalPrice);
       }
-      return weekText(`${startDate} To ${endDate}`, datePrice.price);
+      return weekText(`${startDate} To ${endDate}`, totalPrice);
     }
   }
   const calculateDailyTotal = (date) => {
